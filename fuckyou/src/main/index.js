@@ -18,43 +18,74 @@ const winURL = process.env.NODE_ENV === 'development'
     ? `http://localhost:9080`
     : `file://${__dirname}/index.html`
 
-console.log(11111)
-function createWindow() {
-    console.log("fuckyou");
 
+import {MenuFunc} from './MenuFunc'
+import {Dao} from './db'
+
+/**
+ * 创建窗口
+ */
+function createWindow() {
     /**
-     * Initial window options
+     * 启动窗口的初始化选项
      */
     mainWindow = new BrowserWindow({
-        show:false,
-        autoHideMenuBar:true,
+        show: true,
+        autoHideMenuBar: true,
         height: 563,
-        useContentSize: false,
-        width: 200
+        useContentSize: true,
+        width: 1000,
+        webPreferences: {
+            devTools: true
+        }
     })
 
+    /**
+     * 删除默认的菜单栏
+     */
     mainWindow.setMenu(null)
+    /**
+     * 加载资源文件
+     */
     mainWindow.loadURL(winURL)
 
     mainWindow.on('closed', () => {
-        mainWindow = null
+        release_();
     })
+    /**
+     * web页面加载完毕
+     * @type {Electron.WebContents}
+     */
+    // let webContent = mainWindow.webContents;
+    // webContent.on("did-finish-load", () => {
+    //     console.log("main window ready")
+    // })
 }
 
+/**
+ * 释放相关的资源
+ * @private
+ */
+function release_() {
+    // 关闭数据库
+    Dao.close();
+    // 释放主窗口资源
+    mainWindow = null
+    console.log("closed")
+}
 
 app.on('ready', createWindow)
-
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
 })
-
 app.on('activate', () => {
     if (mainWindow === null) {
         createWindow()
     }
 })
+
 
 /**
  * Auto Updater
