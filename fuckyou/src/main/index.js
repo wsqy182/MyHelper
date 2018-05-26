@@ -56,10 +56,12 @@ function createWindow() {
      * web页面加载完毕
      * @type {Electron.WebContents}
      */
-    // let webContent = mainWindow.webContents;
-    // webContent.on("did-finish-load", () => {
-    //     console.log("main window ready")
-    // })
+    let webContent = mainWindow.webContents;
+    webContent.on("did-finish-load", () => {
+        // 首次加载数据
+        MenuFunc.refresh_();
+        console.log("main window ready")
+    })
 }
 
 /**

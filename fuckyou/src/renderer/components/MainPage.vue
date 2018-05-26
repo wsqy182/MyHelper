@@ -50,15 +50,16 @@
             }
         },
         mounted() {
+            /**
+             * 主进程要求数据刷新
+             */
             ipcRenderer.on("data-refresh", (event) => {
-                console.log("me" +
-                    "ssage is dd")
                 this.refresh_();
             });
         },
         methods: {
             /**
-             * 刷新
+             * 从全局变量中取出变量强制刷新
              * @private
              */
             refresh_() {
