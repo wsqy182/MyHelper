@@ -1,10 +1,12 @@
 <template>
     <div>
         <el-table
+                ref="main-table"
                 :data="tableData"
                 style="width: 100%"
                 :border="true"
                 :highlight-current-row="true"
+                @current-change="change"
         >
             <el-table-column
                     prop="id"
@@ -33,7 +35,12 @@
     /**
      * 引入渲染器进程
      */
-    const {ipcRenderer} = require('electron');
+    const {ipcRenderer, clipboard} = require('electron');
+    /**
+     * 导入事件名变量
+     */
+    import {channels} from '../../main/menu/menu-event-const'
+
     /**
      * 多进程之间共享数据可以通过如下的全局变量进行注入.
      * 但是需要注意的是这里放进去的数据是字符串类型.
@@ -46,16 +53,54 @@
     export default {
         data() {
             return {
-                tableData: []
+                tableData: [],
+                current_row: null
             }
         },
         mounted() {
             /**
              * 主进程要求数据刷新
              */
-            ipcRenderer.on("data-refresh", (event) => {
+            ipcRenderer.on(channels.refresh_, (event) => {
                 this.refresh_();
             });
+            /**
+             * 主进程要求数据复制
+             */
+            ipcRenderer.on(channels.copy_, (event) => {
+                this.copy_();
+            });
+            /**
+             * 主进程要求数据粘贴
+             */
+            ipcRenderer.on(channels.paste_, (event) => {
+                this.paste_();
+            });
+            /**
+             * 主进程要求数据删除
+             */
+            ipcRenderer.on(channels.delete_, (event) => {
+                this.delete_();
+            });
+            /**
+             * 主进程要求打开查找窗口
+             */
+            ipcRenderer.on(channels.find_, (event) => {
+                this.find_();
+            });
+            /**
+             * 主进程要求同步数据
+             */
+            ipcRenderer.on(channels.send_, (event) => {
+                this.send_();
+            });
+            /**
+             * 主进程要求打开帮助窗口
+             */
+            ipcRenderer.on(channels.help_, (event) => {
+                this.help_();
+            });
+
         },
         methods: {
             /**
@@ -63,11 +108,65 @@
              * @private
              */
             refresh_() {
+                console.log("正在刷新数据")
                 let dbData = require('electron').remote.getGlobal('sharedObject').dbData;
                 if (dbData) {
                     this.tableData = dbData;
                 }
-            }
+            },
+            /**
+             * 复制当前webContent被选中的项目
+             * @param current_index 现行选中项
+             * @private
+             */
+            copy_() {
+                console.log("copy ing", this.current_row)
+                if (this.current_row) {
+                    clipboard.writeText(this.current_row.cmd);
+                }
+            },
+            /**
+             * 当前行被改变
+             * @param val
+             */
+            change(val) {
+                this.current_row = val;
+            },
+            paste_: function () {
+
+            },
+            /**
+             * 删除事件被触发
+             * @private
+             */
+            delete_: function () {
+                if (!this.current_row) {
+                    return;
+                }
+                // 询问是否删除
+                this.$alert('您确认要删除\ncmd:' + this.current_row.cmd + '\n这段内容么?', 'Info', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消'
+                }).then(() => {
+                    // 发送同步消息,通知主进程确认删除某一项
+                    let result = ipcRenderer.sendSync(channels.delete_confirm_, this.current_row.id)
+                    if (result == true) {
+                        console.log("删除成功");
+                        this.refresh_();
+                    } else {
+                        console.log("删除失败!");
+                    }
+                });
+            },
+            find_: function () {
+
+            },
+            send_: function () {
+
+            },
+            help_: function () {
+
+            },
         }
     }
 </script>

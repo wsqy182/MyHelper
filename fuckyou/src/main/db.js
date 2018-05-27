@@ -42,7 +42,6 @@ var Dao = {
                 "mark   TEXT  " +                     //字段
                 ") ");
         });
-        console.log("db init success!");
     },
     /**
      * 移除整张表
@@ -56,11 +55,16 @@ var Dao = {
      * @private
      */
     getAll: function () {
-        let sql = "select * from " + table_name;
-        this.database.all(sql, function (err, rows) {
-            global.sharedObject.dbData=rows
-        });
-
+        return new Promise((resolve, reject) => {
+            let sql = "select * from " + table_name;
+            this.database.all(sql, function (err, rows) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        })
     },
     /**
      * 插入一条数据
@@ -75,11 +79,33 @@ var Dao = {
         insert.finalize();     //operater finish
     },
 
-    delete: function () {
-        //删除一条数据：
-        var del = this.database.prepare("DELETE from " + table_name + " where sid=?")
-        del.run(4)
-        del.finalize();
+    /**
+     * 删除一条数据
+     * @param id 欲删除的数据ID
+     * @returns {Promise<any>} 删除成功
+     */
+    delete: function (id) {
+        return new Promise((res, rej) => {
+            if (!id || id <= 0) {
+                rej(new Error("your input of number <=0"));
+            }
+            // 准备sql
+            let sql = "delete from " + table_name + " where id=?";
+            // 预处理sql
+            let del = this.database.prepare(sql);
+            // 设置参数
+            del.run(id, function (err, result) {
+                if (err) {
+                    console.log(err);
+                    rej(err)
+                } else {
+                    console.log("delete !")
+                    // 提交
+                    del.finalize();
+                    res(result);
+                }
+            })
+        })
     },
 
     /**
@@ -114,6 +140,11 @@ var Dao = {
 Dao._init_(datasource);
 // Dao.insert();
 // Dao.dropTable(table_name);
+// Dao.delete(-1).then((res) => {
+//     console.log("delete cg!");
+// }).catch((err) => {
+//     console.log("delete " + err);
+// })
 /**
  * 导出该对象模块
  */

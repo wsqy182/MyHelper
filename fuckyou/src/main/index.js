@@ -19,7 +19,7 @@ const winURL = process.env.NODE_ENV === 'development'
     : `file://${__dirname}/index.html`
 
 
-import {MenuFunc} from './MenuFunc'
+import {MenuFunc} from './menu/menu-func'
 import {Dao} from './db'
 
 /**
@@ -60,7 +60,6 @@ function createWindow() {
     webContent.on("did-finish-load", () => {
         // 首次加载数据
         MenuFunc.refresh_();
-        console.log("main window ready")
     })
 }
 
