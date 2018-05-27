@@ -32,7 +32,6 @@ var MenuFunc = {
      * 刷新菜单被按下
      */
     refresh_: function () {
-        console.log("refresh_");
         // 获取sqlite3数据库中最新的数据
         Dao.getAll().then((res) => {
             setVueData(res);

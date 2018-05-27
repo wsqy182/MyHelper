@@ -81,21 +81,25 @@ function initHotKey() {
     globalShortcut.register('Ctrl+F', () => {
         MenuFunc.find_();
     })
+    globalShortcut.register('F5', () => {
+        MenuFunc.refresh_();
+    })
 }
 
 const menu = new Menu()
+
 /**
  * 初始化菜单
  */
 function initMenu() {
     MenuFunc.setContext(mainWindow)
     menu.append(new MenuItem({label: '刷新', accelerator: "F5", click: MenuFunc.refresh_}))
-    menu.append(new MenuItem({label: '复制', click: MenuFunc.copy_}))
-    menu.append(new MenuItem({label: '粘贴', click: MenuFunc.paste_}))
-    menu.append(new MenuItem({label: '删除', click: MenuFunc.delete_}))
+    menu.append(new MenuItem({label: '复制', accelerator: "Ctrl+C", click: MenuFunc.copy_}))
+    menu.append(new MenuItem({label: '粘贴', accelerator: "Ctrl+V", click: MenuFunc.paste_}))
+    menu.append(new MenuItem({label: '删除', accelerator: "Del", click: MenuFunc.delete_}))
     menu.append(new MenuItem({label: '寻找', accelerator: 'Ctrl+F', click: MenuFunc.find_}))
-    menu.append(new MenuItem({label: '同步', click: MenuFunc.send_}))
-    menu.append(new MenuItem({label: '帮助', click: MenuFunc.help_}))
+    menu.append(new MenuItem({label: '同步', accelerator: "Ctrl+S", click: MenuFunc.send_}))
+    menu.append(new MenuItem({label: '帮助', accelerator: "Ctrl+H", click: MenuFunc.help_}))
     // 窗口创建时绑定上下文菜单
     mainWindow.webContents.on('context-menu', function (e, params) {
         menu.popup(mainWindow, params.x, params.y)
