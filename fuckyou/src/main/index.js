@@ -4,7 +4,7 @@
  * 使用该注释对没用到的组件不进行检查,否则对当前文件的修改不生效.
  */
 /* eslint-disable */
-import {app, BrowserWindow} from 'electron'
+import {app, BrowserWindow, globalShortcut, Menu, MenuItem} from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -49,6 +49,9 @@ function createWindow() {
      */
     mainWindow.loadURL(winURL)
 
+    /**
+     *
+     */
     mainWindow.on('closed', () => {
         release_();
     })
@@ -57,9 +60,45 @@ function createWindow() {
      * @type {Electron.WebContents}
      */
     let webContent = mainWindow.webContents;
+
+    // 注册热键
+    initHotkey();
+    // 初始化菜单
+    initMenu();
+
+    // 资源加载完成,开始更新数据
     webContent.on("did-finish-load", () => {
         // 首次加载数据
         MenuFunc.refresh_();
+    })
+
+}
+
+/**
+ * 绑定快捷键
+ */
+function initHotKey() {
+    globalShortcut.register('Ctrl+F', () => {
+        MenuFunc.find_();
+    })
+}
+
+const menu = new Menu()
+/**
+ * 初始化菜单
+ */
+function initMenu() {
+    MenuFunc.setContext(mainWindow)
+    menu.append(new MenuItem({label: '刷新', accelerator: "F5", click: MenuFunc.refresh_}))
+    menu.append(new MenuItem({label: '复制', click: MenuFunc.copy_}))
+    menu.append(new MenuItem({label: '粘贴', click: MenuFunc.paste_}))
+    menu.append(new MenuItem({label: '删除', click: MenuFunc.delete_}))
+    menu.append(new MenuItem({label: '寻找', accelerator: 'Ctrl+F', click: MenuFunc.find_}))
+    menu.append(new MenuItem({label: '同步', click: MenuFunc.send_}))
+    menu.append(new MenuItem({label: '帮助', click: MenuFunc.help_}))
+    // 窗口创建时绑定上下文菜单
+    mainWindow.webContents.on('context-menu', function (e, params) {
+        menu.popup(mainWindow, params.x, params.y)
     })
 }
 
@@ -75,6 +114,9 @@ function release_() {
     console.log("closed")
 }
 
+/**
+ * app 准备完毕创建窗口
+ */
 app.on('ready', createWindow)
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

@@ -1,7 +1,16 @@
 <template>
     <div>
+        <el-input
+                id="find_box"
+                ref="find_box"
+                placeholder="请输入内容"
+                v-model="find_key"
+                clearable
+                v-show="find_box_show"
+        >
+        </el-input>
         <el-table
-                ref="main-table"
+                ref="main_table"
                 :data="tableData"
                 style="width: 100%"
                 :border="true"
@@ -27,6 +36,7 @@
                     prop="mark"
                     label="描述">
             </el-table-column>
+
         </el-table>
     </div>
 </template>
@@ -39,7 +49,7 @@
     /**
      * 导入事件名变量
      */
-    import {channels} from '../../main/menu/menu-event-const'
+    import {channels} from '../../main/menu/event-const'
 
     /**
      * 多进程之间共享数据可以通过如下的全局变量进行注入.
@@ -54,10 +64,23 @@
         data() {
             return {
                 tableData: [],
-                current_row: null
+                current_row: null,
+                find_key: "",
+                find_box_show: false
             }
         },
         mounted() {
+            // 绑定事件监听器
+            document.getElementById("find_box").addEventListener("keyup", (event) => {
+                if (event.keyCode == 13) {
+                    this.search();
+                }
+                return;
+            });
+            // //添加事件监听器
+            // window.addEventListener("keyup", function (key) {
+            //     console.log("key-up",key)
+            // }, false);
             /**
              * 主进程要求数据刷新
              */
@@ -103,6 +126,18 @@
 
         },
         methods: {
+            search() {
+                if (this.find_key) {
+                    this.find_box_show = false
+                    let search_result = ipcRenderer.sendSync(channels.search_, this.find_key);
+                    if (search_result) {
+                        // 显示搜索到的数据
+                        this.refresh_();
+                    } else {
+                        console.log("搜索失败!");
+                    }
+                }
+            },
             /**
              * 从全局变量中取出变量强制刷新
              * @private
@@ -159,7 +194,7 @@
                 });
             },
             find_: function () {
-
+                this.find_box_show = true;
             },
             send_: function () {
 

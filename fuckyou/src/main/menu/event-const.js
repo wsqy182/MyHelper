@@ -1,6 +1,6 @@
 /* eslint-disable */
 /**
- * 菜单相关的事件频道常量.
+ * 事件频道常量.
  * 渲染层和主进程都要使用
  * @type {Electron}
  */
@@ -12,7 +12,8 @@ var channels = {
     find_: "menu_find_",
     send_: "menu_send_",
     help_: "menu_help_",
-    delete_confirm_: "menu_delete_confirm"
+    delete_confirm_: "menu_delete_confirm",
+    search_: "main_search"
 }
 export {channels}
 

@@ -131,6 +131,25 @@ var Dao = {
      */
     close: function () {
         this.database.close();
+    },
+    /**
+     * 查找数据库
+     */
+    find(cmd) {
+        return new Promise((resolve, reject) => {
+            if (!cmd) {
+                reject(new Error("您不能输入无关的内容!"));
+            }
+            let sql = "select * from " + table_name + " where cmd like '%?%'";
+            this.database.prepare(sql);
+            this.database.run(cmd, (err, rows) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(rows);
+                }
+            })
+        })
     }
 }
 
