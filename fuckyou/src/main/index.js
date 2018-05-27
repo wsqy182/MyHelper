@@ -62,7 +62,7 @@ function createWindow() {
     let webContent = mainWindow.webContents;
 
     // 注册热键
-    initHotkey();
+    initHotKey();
     // 初始化菜单
     initMenu();
 

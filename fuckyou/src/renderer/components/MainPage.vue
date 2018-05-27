@@ -143,7 +143,6 @@
              * @private
              */
             refresh_() {
-                console.log("正在刷新数据")
                 let dbData = require('electron').remote.getGlobal('sharedObject').dbData;
                 if (dbData) {
                     this.tableData = dbData;
@@ -194,7 +193,7 @@
                 });
             },
             find_: function () {
-                this.find_box_show = true;
+                this.find_box_show = !this.find_box_show;
             },
             send_: function () {
 
