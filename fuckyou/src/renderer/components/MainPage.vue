@@ -1,10 +1,11 @@
 <template>
     <div>
         <el-input
+                ref="findbox"
                 id="find_box"
-                ref="find_box"
                 placeholder="请输入内容"
                 v-model="find_key"
+                autofocus="find_box_show"
                 clearable
                 v-show="find_box_show"
         >
@@ -36,7 +37,6 @@
                     prop="mark"
                     label="描述">
             </el-table-column>
-
         </el-table>
     </div>
 </template>
@@ -70,6 +70,12 @@
             }
         },
         mounted() {
+            window.addEventListener("keyup", (event) => {
+                if (event.code == "KeyF" && event.ctrlKey) {
+                    this.showFindBox(!this.find_box_show);
+                }
+                return;
+            })
             // 绑定事件监听器
             document.getElementById("find_box").addEventListener("keyup", (event) => {
                 if (event.keyCode == 13) {
@@ -77,10 +83,6 @@
                 }
                 return;
             });
-            // //添加事件监听器
-            // window.addEventListener("keyup", function (key) {
-            //     console.log("key-up",key)
-            // }, false);
             /**
              * 主进程要求数据刷新
              */
@@ -109,7 +111,7 @@
              * 主进程要求打开查找窗口
              */
             ipcRenderer.on(channels.find_, (event) => {
-                this.find_();
+                this.showFindBox(true);
             });
             /**
              * 主进程要求同步数据
@@ -192,8 +194,21 @@
                     }
                 });
             },
-            find_: function () {
-                this.find_box_show = !this.find_box_show;
+            /**
+             * 显示查找框
+             */
+            showFindBox: function (isShow) {
+                if (isShow) {
+                    this.find_box_show = isShow;
+                } else {
+                    this.find_box_show = false;
+                }
+                if (this.find_box_show) {
+                    this.$nextTick(function () {
+                        console.log(this.$refs.findbox.$el.querySelector('input').focus())
+                    })
+                }
+
             },
             send_: function () {
 
