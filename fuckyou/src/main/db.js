@@ -140,9 +140,8 @@ var Dao = {
             if (!cmd) {
                 reject(new Error("您不能输入无关的内容!"));
             }
-            let sql = "select * from " + table_name + " where cmd like '%?%'";
-            this.database.prepare(sql);
-            this.database.run(cmd, (err, rows) => {
+            let sql = 'select * from ' + table_name + ' where cmd like "%'+cmd+'%"';
+            this.database.all(sql,(err, rows) => {
                 if (err) {
                     reject(err)
                 } else {
